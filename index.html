@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Digital College Notice Board</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, sans-serif;
+        }
+
+        body{
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    min-height:100vh;
+    padding:20px;
+}
+
+        .container{
+            max-width:1200px;
+            margin:auto;
+        }
+
+        .header{
+            text-align:center;
+            color:white;
+            margin-bottom:30px;
+        }
+
+        .header h1{
+            font-size:45px;
+            margin-bottom:10px;
+        }
+
+        .header p{
+            font-size:18px;
+        }
+
+        .top-controls{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-bottom:30px;
+        }
+
+        .btn{
+            padding:12px 20px;
+            border:none;
+            border-radius:30px;
+            cursor:pointer;
+            font-size:15px;
+            font-weight:bold;
+            transition:0.3s;
+        }
+
+        .btn:hover{
+            transform:translateY(-3px);
+        }
+
+        .primary{
+            background:#ff4b5c;
+            color:white;
+        }
+
+        .success{
+            background:#00c897;
+            color:white;
+        }
+
+        .search-box{
+            padding:12px 18px;
+            width:260px;
+            border:none;
+            border-radius:30px;
+            outline:none;
+            font-size:15px;
+        }
+
+        .filter-buttons{
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-bottom:30px;
+        }
+
+        .notice-board{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+            gap:25px;
+        }
+
+        .card{
+            background:white;
+            padding:25px;
+            border-radius:20px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.2);
+            transition:0.3s;
+        }
+
+        .card:hover{
+            transform:translateY(-8px);
+        }
+
+        .card-top{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:15px;
+        }
+
+        .type{
+            padding:6px 14px;
+            border-radius:20px;
+            color:white;
+            font-size:12px;
+            font-weight:bold;
+        }
+
+        .exam{
+            background:#ff4b5c;
+        }
+
+        .event{
+            background:#00c897;
+        }
+
+        .general{
+            background:#0984e3;
+        }
+
+        .result{
+            background:#f1c40f;
+            color:black;
+        }
+
+        .date{
+            font-size:13px;
+            color:gray;
+        }
+
+        .title{
+            font-size:24px;
+            margin-bottom:10px;
+            color:#333;
+        }
+
+        .content{
+            color:#555;
+            line-height:1.6;
+            margin-bottom:20px;
+        }
+
+        .footer{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .delete-btn{
+            background:red;
+            color:white;
+            border:none;
+            padding:8px 14px;
+            border-radius:20px;
+            cursor:pointer;
+        }
+
+        .modal{
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.5);
+            display:none;
+            justify-content:center;
+            align-items:center;
+        }
+
+        .modal-content{
+            background:white;
+            width:90%;
+            max-width:500px;
+            padding:30px;
+            border-radius:20px;
+        }
+
+        .modal-content h2{
+            margin-bottom:20px;
+        }
+
+        .form-group{
+            margin-bottom:20px;
+        }
+
+        .form-group label{
+            display:block;
+            margin-bottom:8px;
+            font-weight:bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select{
+            width:100%;
+            padding:12px;
+            border:2px solid #ddd;
+            border-radius:10px;
+            outline:none;
+        }
+
+        textarea{
+            resize:none;
+            height:100px;
+        }
+
+        .modal-buttons{
+            display:flex;
+            justify-content:flex-end;
+            gap:10px;
+        }
+
+        .empty{
+            text-align:center;
+            color:white;
+            font-size:22px;
+            grid-column:1/-1;
+        }
+
+        @media(max-width:768px){
+
+            .header h1{
+                font-size:32px;
+            }
+
+            .top-controls{
+                flex-direction:column;
+            }
+
+            .search-box{
+                width:100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>📌 Digital College Notice Board</h1>
+            <p>Stay updated with latest college announcements</p>
+        </div>
+
+        <div class="top-controls">
+
+            <button class="btn primary" onclick="openModal()">
+                ➕ Add Notice
+            </button>
+
+            <input 
+                type="text" 
+                class="search-box"
+                id="searchInput"
+                placeholder="Search notices..."
+                onkeyup="searchNotices()"
+            >
+        </div>
+
+        <div class="filter-buttons">
+            <button class="btn success" onclick="filterNotices('all')">All</button>
+            <button class="btn primary" onclick="filterNotices('exam')">📚 Exam</button>
+            <button class="btn primary" onclick="filterNotices('event')">🎉 Event</button>
+            <button class="btn primary" onclick="filterNotices('general')">📢 General</button>
+            <button class="btn primary" onclick="filterNotices('result')">📊 Result</button>
+        </div>
+
+        <div class="notice-board" id="noticeBoard"></div>
+
+    </div>
+
+    <!-- MODAL -->
+
+    <div class="modal" id="modal">
+
+        <div class="modal-content">
+
+            <h2>Add New Notice</h2>
+
+            <form id="noticeForm">
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Type</label>
+
+                    <select id="type" required>
+                        <option value="">Select</option>
+                        <option value="exam">Exam</option>
+                        <option value="event">Event</option>
+                        <option value="general">General</option>
+                        <option value="result">Result</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="content" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="date">
+                </div>
+
+                <div class="modal-buttons">
+
+                    <button 
+                        type="button" 
+                        class="btn"
+                        onclick="closeModal()"
+                    >
+                        Cancel
+                    </button>
+
+                    <button 
+                        type="submit"
+                        class="btn primary"
+                    >
+                        Add Notice
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        let notices = JSON.parse(localStorage.getItem("notices")) || [];
+
+        let currentFilter = "all";
+
+        displayNotices();
+
+        document.getElementById("noticeForm")
+        .addEventListener("submit", function(e){
+
+            e.preventDefault();
+
+            const notice = {
+
+                id:Date.now(),
+
+                title:document.getElementById("title").value,
+
+                type:document.getElementById("type").value,
+
+                content:document.getElementById("content").value,
+
+                date:document.getElementById("date").value || new Date().toISOString().split('T')[0],
+
+                created:new Date().toLocaleDateString()
+            };
+
+            notices.unshift(notice);
+
+            localStorage.setItem("notices", JSON.stringify(notices));
+
+            displayNotices();
+
+            closeModal();
+
+            this.reset();
+
+        });
+
+        function displayNotices(){
+
+            const board = document.getElementById("noticeBoard");
+
+            let filtered = currentFilter === "all"
+                ? notices
+                : notices.filter(n => n.type === currentFilter);
+
+            if(filtered.length === 0){
+
+                board.innerHTML = `
+                    <div class="empty">
+                        No notices available
+                    </div>
+                `;
+
+                return;
+            }
+
+            board.innerHTML = filtered.map(notice => `
+
+                <div class="card">
+
+                    <div class="card-top">
+
+                        <div class="type ${notice.type}">
+                            ${emoji(notice.type)} 
+                            ${notice.type.toUpperCase()}
+                        </div>
+
+                        <div class="date">
+                            ${formatDate(notice.date)}
+                        </div>
+
+                    </div>
+
+                    <div class="title">
+                        ${notice.title}
+                    </div>
+
+                    <div class="content">
+                        ${notice.content}
+                    </div>
+
+                    <div class="footer">
+
+                        <span>
+                            Posted: ${notice.created}
+                        </span>
+
+                        <button 
+                            class="delete-btn"
+                            onclick="deleteNotice(${notice.id})"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `).join("");
+        }
+
+        function deleteNotice(id){
+
+            if(confirm("Delete this notice?")){
+
+                notices = notices.filter(n => n.id !== id);
+
+                localStorage.setItem("notices", JSON.stringify(notices));
+
+                displayNotices();
+            }
+        }
+
+        function filterNotices(type){
+
+            currentFilter = type;
+
+            displayNotices();
+        }
+
+        function searchNotices(){
+
+            const value = document
+                .getElementById("searchInput")
+                .value
+                .toLowerCase();
+
+            const filtered = notices.filter(n =>
+
+                n.title.toLowerCase().includes(value) ||
+
+                n.content.toLowerCase().includes(value)
+            );
+
+            const board = document.getElementById("noticeBoard");
+
+            if(filtered.length === 0){
+
+                board.innerHTML = `
+                    <div class="empty">
+                        No matching notices found
+                    </div>
+                `;
+
+                return;
+            }
+
+            board.innerHTML = filtered.map(notice => `
+
+                <div class="card">
+
+                    <div class="card-top">
+
+                        <div class="type ${notice.type}">
+                            ${emoji(notice.type)} 
+                            ${notice.type.toUpperCase()}
+                        </div>
+
+                        <div class="date">
+                            ${formatDate(notice.date)}
+                        </div>
+
+                    </div>
+
+                    <div class="title">
+                        ${notice.title}
+                    </div>
+
+                    <div class="content">
+                        ${notice.content}
+                    </div>
+
+                </div>
+
+            `).join("");
+        }
+
+        function openModal(){
+
+            document.getElementById("modal").style.display = "flex";
+
+            document.getElementById("date").valueAsDate = new Date();
+        }
+
+        function closeModal(){
+
+            document.getElementById("modal").style.display = "none";
+        }
+
+        window.onclick = function(e){
+
+            if(e.target.id === "modal"){
+
+                closeModal();
+            }
+        }
+
+        function emoji(type){
+
+            const emojis = {
+
+                exam:"📚",
+                event:"🎉",
+                general:"📢",
+                result:"📊"
+            };
+
+            return emojis[type];
+        }
+
+        function formatDate(date){
+
+            return new Date(date).toLocaleDateString(
+                "en-US",
+                {
+                    weekday:"short",
+                    month:"short",
+                    day:"numeric",
+                    year:"numeric"
+                }
+            );
+        }
+
+    </script>
+
+</body>
+</html>
